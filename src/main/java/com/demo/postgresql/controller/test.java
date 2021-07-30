@@ -1,6 +1,6 @@
 //package com.demo.postgresql;
 //
-//import com.demo.postgresql.utils.DButils;
+//import com.demo.postgresql.utils.DbUtils;
 //
 //import java.sql.*;
 //import java.util.ArrayList;
@@ -38,7 +38,7 @@
 //                String sql = "select column_name from information_schema.columns where table_schema=# and table_name=&;".replace("#", "'" + schemaname + "'").replace("&", "'" + s + "'"); // \"
 //                ResultSet dataResult = stmt.executeQuery(sql);
 //                List<Object> dataList = new ArrayList<Object>();
-//                dataList = DButils.converToList(dataResult);
+//                dataList = DbUtils.converToList(dataResult);
 //                for (Object o : dataList) {
 //                    String findSql = "select * from $ where @ like # limit 1".replace("$", "\"" + schemaname + "\"" + "." + "\"" + s + "\"")
 //                            .replace("@", String.valueOf(o).replace("{column_name=", "").replace("}", "")).replace("#", "'%" + findString + "%'");
@@ -50,7 +50,7 @@
 //                        c.rollback();
 //                        continue;
 //                    }
-//                    if (DButils.converToList(data).size() > 0) {
+//                    if (DbUtils.converToList(data).size() > 0) {
 //                        System.out.println(schemaname + "  " + s + "  " + String.valueOf(o).replace("{column_name=", "").replace("}", ""));
 //                    }
 //                }

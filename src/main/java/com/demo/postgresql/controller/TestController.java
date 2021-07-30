@@ -3,7 +3,7 @@ package com.demo.postgresql.controller;
 import com.demo.postgresql.common.BaseResponse;
 import com.demo.postgresql.constant.Constant;
 import com.demo.postgresql.entity.User;
-import com.demo.postgresql.utils.DButils;
+import com.demo.postgresql.utils.DbUtils;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,7 +71,7 @@ public class TestController {
                         //得到某个表所有的列名
                         String sql = Constant.COLUMN_SQL.replace("#", "'" + schemaName + "'").replace("&", "'" + table + "'");    // \"
                         ResultSet dataResult = statement.executeQuery(sql);
-                        List<Object> columnList = DButils.converToList(dataResult);
+                        List<Object> columnList = DbUtils.convertToList(dataResult);
                         for (Object column : columnList) {
                             for (String testData : findList) {
                                 String executeSql = Constant.FIND_SQL.replace("$", "\"" + schemaName + "\"" + "." + "\"" + table + "\"")
@@ -84,7 +84,7 @@ public class TestController {
                                     connection.rollback();
                                     data = statement.executeQuery(executeSql);//重试一次
                                 }
-                                if (DButils.converToList(data).size() > 0) {
+                                if (DbUtils.convertToList(data).size() > 0) {
                                     result.add("数据:" + testData + " 匹配的模式是：" + schemaName + " ," + " 表名是：" + table + " ," + " 列名是：" + String.valueOf(column).replace("{column_name=", "").replace("}", ""));
                                 }
                             }

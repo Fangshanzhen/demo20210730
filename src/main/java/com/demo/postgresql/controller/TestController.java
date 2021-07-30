@@ -82,7 +82,12 @@ public class TestController {
                                     data = statement.executeQuery(executeSql);
                                 } catch (Exception e) {
                                     connection.rollback();
-                                    data = statement.executeQuery(executeSql);//重试一次
+                                    try {
+                                        data = statement.executeQuery(executeSql);//重试一次
+                                    } catch (Exception e1) {
+                                        connection.rollback();
+                                        continue;
+                                    }
                                 }
                                 if (DbUtils.convertToList(data).size() > 0) {
                                     result.add("数据:" + testData + " 匹配的模式是：" + schemaName + " ," + " 表名是：" + table + " ," + " 列名是：" + String.valueOf(column).replace("{column_name=", "").replace("}", ""));

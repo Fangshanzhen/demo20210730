@@ -8,9 +8,9 @@ import lombok.Data;
 @ApiModel
 public class User {
     @ApiModelProperty(value = "name1", example = "郑晟旻")
-    String name1;
+    String firstName;
     @ApiModelProperty(value = "name2", example = "pg_toast_2604_index")
-    String name2;
+    String secondName;
     @ApiModelProperty(value = "name3", example = "Extended dynamic SQL")
-    String name3;
+    String thirdName;
 }

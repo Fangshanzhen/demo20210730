@@ -54,16 +54,16 @@ public class TestController {
                     String findId;
                     String findDate;
                     List<String> findList = new ArrayList<>();
-                    if (user.getName1() != null && user.getName1().length() != 0 && !user.getName1().equals(" ")) {
-                        findName = user.getName1();
+                    if (user.getFirstName() != null && user.getFirstName().length() != 0 && !user.getFirstName().equals(" ")) {
+                        findName = user.getFirstName();
                         findList.add(findName);
                     }
-                    if (user.getName2() != null && user.getName2().length() != 0 && !user.getName2().equals(" ")) {
-                        findId = user.getName2();
+                    if (user.getSecondName() != null && user.getSecondName().length() != 0 && !user.getSecondName().equals(" ")) {
+                        findId = user.getSecondName();
                         findList.add(findId);
                     }
-                    if (user.getName3() != null && user.getName3().length() > 0 && !user.getName3().equals(" ")) {
-                        findDate = user.getName3();
+                    if (user.getThirdName() != null && user.getThirdName().length() > 0 && !user.getThirdName().equals(" ")) {
+                        findDate = user.getThirdName();
                         findList.add(findDate);
                     }
 

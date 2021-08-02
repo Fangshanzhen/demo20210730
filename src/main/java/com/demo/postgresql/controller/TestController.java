@@ -50,21 +50,21 @@ public class TestController {
                 }
 
                 for (User user : userList) {
-                    String findName;
-                    String findId;
-                    String findDate;
+                    String findFirstName;
+                    String findSecondName;
+                    String findThirdName;
                     List<String> findList = new ArrayList<>();
                     if (user.getFirstName() != null && user.getFirstName().length() != 0 && !user.getFirstName().equals(" ")) {
-                        findName = user.getFirstName();
-                        findList.add(findName);
+                        findFirstName = user.getFirstName();
+                        findList.add(findFirstName);
                     }
                     if (user.getSecondName() != null && user.getSecondName().length() != 0 && !user.getSecondName().equals(" ")) {
-                        findId = user.getSecondName();
-                        findList.add(findId);
+                        findSecondName = user.getSecondName();
+                        findList.add(findSecondName);
                     }
                     if (user.getThirdName() != null && user.getThirdName().length() > 0 && !user.getThirdName().equals(" ")) {
-                        findDate = user.getThirdName();
-                        findList.add(findDate);
+                        findThirdName = user.getThirdName();
+                        findList.add(findThirdName);
                     }
 
                     for (String table : tableList) {
@@ -90,7 +90,7 @@ public class TestController {
                                     }
                                 }
                                 if (DbUtils.convertToList(data).size() > 0) {
-                                    result.add("数据:" + testData + " 匹配的模式是：" + schemaName + " ," + " 表名是：" + table + " ," + " 列名是：" + String.valueOf(column).replace("{column_name=", "").replace("}", ""));
+                                    result.add("数据: " + testData + " 匹配的模式是：" + schemaName + " ," + " 表名是：" + table + " ," + " 列名是：" + String.valueOf(column).replace("{column_name=", "").replace("}", ""));
                                 }
                             }
                         }

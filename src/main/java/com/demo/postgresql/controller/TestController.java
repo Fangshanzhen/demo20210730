@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
-
 @Slf4j
 @RestController
 @RequestMapping("/test/data")
@@ -25,37 +24,37 @@ public class TestController {
     @ApiOperation(value = "全局搜索")
     @RequestMapping(value = "/getData", method = RequestMethod.POST)
     @SuppressWarnings("unchecked")
-    public BaseResponse getData(@RequestBody Map<String, List> map) throws SQLException, ClassNotFoundException {
+    public BaseResponse getData(@RequestBody Map<String, List> paramsMap) throws SQLException, ClassNotFoundException {
+
         BaseResponse baseResponse = new BaseResponse(0, null, null);
         Class.forName(Constant.DRIVER);
-
         Connection connection = DriverManager.getConnection(Constant.URL, Constant.USER, Constant.PASSWORD);
         connection.setAutoCommit(false);
         Statement statement = connection.createStatement();
         statement.setQueryTimeout(60); //sql执行60秒超时
-        List<User> jsonList = map.get("userList");
+        List<User> jsonList = paramsMap.get("userList");
         ObjectMapper mapper = new ObjectMapper();
         List<User> userList = mapper.convertValue(jsonList, new TypeReference<List<User>>() {
         });
-        List<Schema> jsonSchemaPossibleList = map.get("schemaPossibleList");
+        List<Schema> jsonSchemaPossibleList = paramsMap.get("schemaPossibleList");
         List<Schema> schemaPossibleList = mapper.convertValue(jsonSchemaPossibleList, new TypeReference<List<Schema>>() {
         });
 
         List<String> schemaList = new ArrayList<>();
+        //判断是否传入schema参数
         if (schemaPossibleList != null && schemaPossibleList.size() > 0) {
             schemaList = schemaPossibleList.stream().map(Schema::getSchemaName).collect(Collectors.toList());
-        } else {
-
+        } else { //若schema参数为空，则全局搜索
             ResultSet schemaResult = statement.executeQuery(Constant.FIND_ALL_SCHEMA);
             while (schemaResult.next()) {
                 String schemaName = schemaResult.getString("nspname"); //得到所有的schema
                 schemaList.add(schemaName);
             }
         }
-
         List<String> result = new ArrayList<>();
+
         try {
-            for (String schema : schemaList) {
+            for (String schema : schemaList) { //过滤自带schema
                 if (schema.equals("pg_toast_temp_1") || schema.equals("pg_temp_1") || schema.equals("pg_toast")) {
                     continue;
                 }
@@ -114,10 +113,6 @@ public class TestController {
                             }
                         }
                     }
-                    if (result.size() > 0) {
-                        baseResponse.setMsg("success");
-                        baseResponse.setData(result);
-                    }
                 }
             }
 
@@ -130,11 +125,16 @@ public class TestController {
             connection.close();
         }
 
+        if (result.size() > 0) {
+            baseResponse.setMsg("success");
+            baseResponse.setData(result);
+        }
         return baseResponse;
     }
 }
 
 /*
+入参示例：
 {
 	"userList": [{
 		"firstName": "郑晟旻",
@@ -142,6 +142,8 @@ public class TestController {
 		"thirdName": "Extended dynamic SQL"
 	}],
 	"schemaPossibleList": [{
+		"schemaName": "pg_catalog"
+	}, {
 		"schemaName": "public"
 	}]
 }

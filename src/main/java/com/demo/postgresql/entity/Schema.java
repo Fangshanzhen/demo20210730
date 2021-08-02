@@ -9,4 +9,5 @@ import lombok.Data;
 public class Schema {
     @ApiModelProperty(value = "schemaName", example = "public")
     String schemaName;
+
 }

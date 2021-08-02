@@ -3,16 +3,20 @@ package com.demo.postgresql.controller;
 import com.demo.postgresql.common.BaseResponse;
 import com.demo.postgresql.constant.Constant;
 import com.demo.postgresql.entity.User;
+import com.demo.postgresql.entity.Schema;
 import com.demo.postgresql.utils.DbUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+
 
 @Slf4j
 @RestController
@@ -21,21 +25,36 @@ public class TestController {
     @ApiOperation(value = "全局搜索")
     @RequestMapping(value = "/getData", method = RequestMethod.POST)
     @SuppressWarnings("unchecked")
-    public BaseResponse getData(@RequestBody List<User> userList) throws SQLException, ClassNotFoundException {
+    public BaseResponse getData(@RequestBody Map<String, List> map) throws SQLException, ClassNotFoundException {
         BaseResponse baseResponse = new BaseResponse(0, null, null);
         Class.forName(Constant.DRIVER);
+
         Connection connection = DriverManager.getConnection(Constant.URL, Constant.USER, Constant.PASSWORD);
         connection.setAutoCommit(false);
         Statement statement = connection.createStatement();
         statement.setQueryTimeout(60); //sql执行60秒超时
-        try {
-            List<String> schemaList = new ArrayList<>();
+        List<User> jsonList = map.get("userList");
+        ObjectMapper mapper = new ObjectMapper();
+        List<User> userList = mapper.convertValue(jsonList, new TypeReference<List<User>>() {
+        });
+        List<Schema> jsonSchemaPossibleList = map.get("schemaPossibleList");
+        List<Schema> schemaPossibleList = mapper.convertValue(jsonSchemaPossibleList, new TypeReference<List<Schema>>() {
+        });
+
+        List<String> schemaList = new ArrayList<>();
+        if (schemaPossibleList != null && schemaPossibleList.size() > 0) {
+            schemaList = schemaPossibleList.stream().map(Schema::getSchemaName).collect(Collectors.toList());
+        } else {
+
             ResultSet schemaResult = statement.executeQuery(Constant.FIND_ALL_SCHEMA);
             while (schemaResult.next()) {
                 String schemaName = schemaResult.getString("nspname"); //得到所有的schema
                 schemaList.add(schemaName);
             }
-            List<String> result = new ArrayList<>();
+        }
+
+        List<String> result = new ArrayList<>();
+        try {
             for (String schema : schemaList) {
                 if (schema.equals("pg_toast_temp_1") || schema.equals("pg_temp_1") || schema.equals("pg_toast")) {
                     continue;
@@ -72,7 +91,7 @@ public class TestController {
                         String sql = Constant.COLUMN_SQL.replace("#", "'" + schemaName + "'").replace("&", "'" + table + "'");    // \"
                         ResultSet dataResult = statement.executeQuery(sql);
                         List<Object> columnList = DbUtils.convertToList(dataResult);
-                        for (Object column : columnList) {
+                        for (Object column : columnList) { //一张表有多个列
                             for (String testData : findList) {
                                 String executeSql = Constant.FIND_SQL.replace("$", "\"" + schemaName + "\"" + "." + "\"" + table + "\"")
                                         .replace("@", String.valueOf(column).replace("{column_name=", "").replace("}", "")).replace("#", "'%" + testData + "%'");
@@ -101,7 +120,9 @@ public class TestController {
                     }
                 }
             }
-        } catch (Exception e) {
+
+        } catch (
+                Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         } finally {
@@ -113,3 +134,16 @@ public class TestController {
     }
 }
 
+/*
+{
+	"userList": [{
+		"firstName": "郑晟旻",
+		"secondName": "pg_toast_2604_index",
+		"thirdName": "Extended dynamic SQL"
+	}],
+	"schemaPossibleList": [{
+		"schemaName": "public"
+	}]
+}
+
+*/
